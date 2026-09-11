@@ -5,6 +5,9 @@ _planejamento/
 _makesense/
 _modelos/
 dataset/fontes_imagens.csv
+resultados/
+farmtech.yaml
+*.cache
 
 # Artefatos de treino e ferramentas clonadas no notebook
 yolov5/
