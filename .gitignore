@@ -1,0 +1,26 @@
+# Material de trabalho que nao vai para o repositorio
+_fotos_originais/
+_geradores/
+_planejamento/
+_makesense/
+_modelos/
+dataset/fontes_imagens.csv
+
+# Artefatos de treino e ferramentas clonadas no notebook
+yolov5/
+darknet/
+runs/
+*.pt
+*.weights
+*.cfg
+
+# Python e Jupyter
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store
