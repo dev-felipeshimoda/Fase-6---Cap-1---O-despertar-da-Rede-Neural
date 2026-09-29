@@ -60,40 +60,48 @@ sozinho. Basta usar **Ambiente de execução > Executar tudo**.
 
 ### Entrega 1 | 30 contra 60 épocas
 
-Métricas na validação, com os melhores pesos de cada simulação:
+Métricas na validação, na melhor época de cada simulação:
 
 | Métrica | 30 épocas | 60 épocas |
 |---|---:|---:|
-| Precisão | 0,827 | 0,910 |
-| Recall | 0,966 | 0,999 |
-| mAP50 | 0,953 | 0,995 |
-| mAP50-95 | 0,600 | 0,696 |
-| Tempo de treino (GPU T4) | 1,8 min | 2,5 min |
+| Precisão | 0,899 | 0,907 |
+| Recall | 0,550 | 0,900 |
+| mAP50 | 0,844 | 0,958 |
+| mAP50-95 | 0,510 | 0,644 |
+| Melhor época | 30 de 30 | 54 de 60 |
+| Tempo de treino (GPU T4) | 1,7 min | 2,0 min |
 
-Dobrar as épocas não fez o modelo encontrar mais objetos, fez ele **desenhar caixas melhores**: o
-mAP50 já estava perto do teto e quem subiu quase 10 pontos foi o mAP50-95, que exige caixas cada
-vez mais justas. Não houve overfitting: as perdas de treino e de validação caíram juntas.
+**30 épocas não bastaram.** A melhor época da primeira simulação foi a última, e o modelo
+encontrava só 55% dos objetos da validação. Com 60 épocas o recall foi a 0,900 e o mAP50-95, que
+exige caixas cada vez mais justas, subiu de 0,510 para 0,644, sem overfitting prejudicial. As 30
+épocas extras custaram 21 segundos de GPU.
 
 ### Entrega 2 | Três abordagens nas mesmas 8 imagens de teste
 
-| Abordagem | Acurácia por imagem | Precisão | mAP50 | Treino | Inferência CPU |
-|---|---:|---:|---:|---:|---:|
-| YOLOv5s customizada, 30 épocas | 0,875 | 0,875 | 0,881 | 110 s | 263 ms |
-| YOLOv5s customizada, 60 épocas | 0,750 | **0,900** | **0,983** | 150 s | 280 ms |
-| YOLOv3 tradicional (COCO) | **1,000** | 0,732 | 0,784 | zero | 1.281 ms |
-| CNN treinada do zero | 0,625 | 0,786 | não se aplica | 14,5 s | **40 ms** |
+| Abordagem | Acurácia por imagem | Precisão | mAP50 | Treino | Inferência CPU | Inferência GPU |
+|---|---:|---:|---:|---:|---:|---:|
+| YOLOv5s customizada, 30 épocas | 0,750 | **1,000** | **1,000** | 100 s | 186 ms | **15 ms** |
+| YOLOv5s customizada, 60 épocas | **1,000** | **1,000** | **1,000** | 121 s | 216 ms | **15 ms** |
+| YOLOv3 tradicional (COCO) | **1,000** | 0,732 | 0,784 | **zero** | 1.031 ms | não roda |
+| CNN treinada do zero | 0,625 | 0,786 | não se aplica | 11,8 s | **32 ms** | 23 ms |
 
 Três achados que os números sozinhos não contam:
 
-1. **A YOLOv3 pronta acertou todas as imagens sem treino nenhum, e ainda assim tem a pior
-   precisão.** Ela marca três maçãs onde existem duas e hesita entre `knife` e `scissors` com a
-   mesma confiança. Para dizer "tem maçã aqui" ela resolve; para contar e localizar, não.
-2. **Mais épocas melhoraram a detecção e pioraram a acurácia por imagem.** O modelo de 60 épocas
-   enxerga os objetos de duas imagens de teste, mas com confiança abaixo do limiar de 0,25, e as
-   detecções são descartadas. Limiar é decisão de negócio, não detalhe técnico.
+1. **A YOLOv5 de 60 épocas e a YOLOv3 pronta acertaram as 8 imagens, mas não do mesmo jeito.** A
+   YOLOv5 não teve nenhum alarme falso; a YOLOv3 marca três maçãs onde existem duas e hesita entre
+   `knife` e `scissors` com a mesma confiança. Para dizer "tem maçã aqui" a rede pronta resolve;
+   para contar e localizar, não. E ela só funciona porque maçã e tesoura estão entre as 80 classes
+   do COCO.
+2. **O modelo de 30 épocas viu, mas não confiou.** Ele encontra todos os objetos do teste (mAP50 de
+   1,000), mas em duas imagens com confiança abaixo do limiar de 0,25, e as detecções são
+   descartadas. Mais treino deixou o modelo mais seguro. Limiar é decisão de negócio, não detalhe
+   técnico.
 3. **O tipo de rótulo decidiu o resultado.** Mesmas 80 imagens: caixas por objeto levaram a mAP50
-   de 0,983, nenhum rótulo a 0,784 e apenas a classe da imagem a 0,625 de acurácia. As cerca de 40
-   minutos de rotulação renderam mais que qualquer ajuste de arquitetura.
+   de 1,000 no teste, nenhum rótulo a 0,784 e apenas a classe da imagem a 0,625 de acurácia. A
+   rotulação, feita em menos de meia hora, rendeu mais que qualquer ajuste de arquitetura.
+
+Um cuidado na leitura: o teste tem só 8 imagens, então o acerto de 100% não significa um modelo
+perfeito. Na validação, o modelo de 60 épocas ainda deixou passar uma das 5 tesouras.
 
 **Recomendação:** YOLOv5 customizada com 60 épocas como base do produto, com o limiar de confiança
 ajustável por aplicação.
@@ -145,6 +153,14 @@ jupyter notebook FelipeShimoda_rm573344_pbl_fase6.ipynb
 
 O notebook clona o YOLOv5 em um commit fixo e baixa os pesos necessários na primeira execução. Sem
 GPU, os treinos levam bem mais tempo do que no Colab.
+
+Dois cuidados:
+
+- **No Colab**, o notebook cria a pasta `MyDrive/FIAP/Fase6_Cap1_FarmTechVision` no Drive de quem
+  executa e guarda nela o dataset, os resultados e os pesos da YOLOv3 original (cerca de 250 MB),
+  para não baixá-los de novo a cada execução.
+- **No Windows**, clone o repositório em uma pasta cujo caminho não tenha acentos: os scripts do
+  YOLOv5 não localizam arquivos em caminhos com caracteres acentuados.
 
 ## Dataset
 
