@@ -39,7 +39,7 @@ O notebook está com **todas as células executadas** no Google Colab com GPU T4
 diretamente pelo GitHub. Para executá-lo de novo:
 
 - **[Abrir no Google Colab](https://colab.research.google.com/github/dev-felipeshimoda/Fase-6---Cap-1---O-despertar-da-Rede-Neural/blob/main/FelipeShimoda_rm573344_pbl_fase6.ipynb)**
-- **[Abrir no nbviewer](https://nbviewer.org/github/dev-felipeshimoda/Fase-6---Cap-1---O-despertar-da-Rede-Neural/blob/main/FelipeShimoda_rm573344_pbl_fase6.ipynb)**
+- **[Abrir no nbviewer](https://nbviewer.org/urls/raw.githubusercontent.com/dev-felipeshimoda/Fase-6---Cap-1---O-despertar-da-Rede-Neural/main/FelipeShimoda_rm573344_pbl_fase6.ipynb)**
 
 No Colab, o notebook conecta o Google Drive, clona este repositório e organiza o dataset no Drive
 sozinho. Basta usar **Ambiente de execução > Executar tudo**.
